@@ -509,6 +509,7 @@ class Resource(metaclass=DeclarativeMetaclass):
         one of more fields, those errors are captured and reraised as a single,
         multi-field ValidationError."""
         errors = {}
+        # 遍历所有导入字段
         for field in self.get_import_fields():
             if isinstance(field.widget, widgets.ManyToManyWidget):
                 continue
@@ -635,10 +636,13 @@ class Resource(metaclass=DeclarativeMetaclass):
         row_result = self.get_row_result_class()()
         original = None
         try:
+            # 导入row之前
             self.before_import_row(row, **kwargs)
             instance, new = self.get_or_init_instance(instance_loader, row)
+            # 导入instance之后
             self.after_import_instance(instance, new, **kwargs)
             if new:
+                # 新建
                 row_result.import_type = RowResult.IMPORT_TYPE_NEW
             else:
                 row_result.import_type = RowResult.IMPORT_TYPE_UPDATE
@@ -666,6 +670,7 @@ class Resource(metaclass=DeclarativeMetaclass):
                     # instance validation errors if necessary
                     import_validation_errors = e.update_error_dict(import_validation_errors)
                 if self.skip_row(instance, original):
+                    # 跳过的row
                     row_result.import_type = RowResult.IMPORT_TYPE_SKIP
                 else:
                     self.validate_instance(instance, import_validation_errors)
@@ -679,6 +684,7 @@ class Resource(metaclass=DeclarativeMetaclass):
 
             if not skip_diff:
                 row_result.diff = diff.as_html()
+            # 导入row之后
             self.after_import_row(row, row_result, **kwargs)
 
         except ValidationError as e:

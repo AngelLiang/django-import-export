@@ -503,6 +503,7 @@ class ExportMixin(ImportExportMixinBase):
     def changelist_view(self, request, extra_context=None):
         if extra_context is None:
             extra_context = {}
+        # 添加 权限 到上下文
         extra_context['has_export_permission'] = self.has_export_permission(request)
         return super().changelist_view(request, extra_context)
 
